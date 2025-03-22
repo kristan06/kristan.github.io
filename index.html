@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFocus - Modern Study Timer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-icons@latest/dist/umd/lucide.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i data-lucide="clock"></i>
+                <h1>StudyFocus</h1>
+            </div>
+            <div class="header-right">
+                <div id="philippine-time" class="time-display"></div>
+                <button id="focus-mode-toggle" class="icon-button" title="Toggle Focus Mode">
+                    <i data-lucide="eye-off"></i>
+                </button>
+                <button id="theme-toggle" class="icon-button" title="Toggle Dark Mode">
+                    <i data-lucide="moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="timer">Study Timer</button>
+            <button class="nav-tab" data-tab="tasks">Task Tracker</button>
+            <button class="nav-tab" data-tab="notes">Study Notes</button>
+            <button class="nav-tab" data-tab="analytics">Analytics</button>
+            <button class="nav-tab" data-tab="settings">Settings</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Timer Tab -->
+            <section id="timer-tab" class="tab-content active">
+                <div class="timer-container">
+                    <div class="techniques-panel">
+                        <h2>Study Techniques</h2>
+                        <div class="technique-buttons">
+                            <button class="technique-btn active" data-technique="pomodoro">
+                                <i data-lucide="clock"></i>
+                                <div>
+                                    <span>Pomodoro</span>
+                                    <small>25 minutes study, 5-minute break</small>
+                                </div>
+                            </button>
+                            <button class="technique-btn" data-technique="feynman">
+                                <i data-lucide="brain"></i>
+                                <div>
+                                    <span>Feynman Technique</span>
+                                    <small>Explain concepts in simple terms</small>
+                                </div>
+                            </button>
+                            <button class="technique-btn" data-technique="spaced">
+                                <i data-lucide="repeat"></i>
+                                <div>
+                                    <span>Spaced Repetition</span>
+                                    <small>Reviewing at strategic intervals</small>
+                                </div>
+                            </button>
+                            <button class="technique-btn" data-technique="active">
+                                <i data-lucide="book-open"></i>
+                                <div>
+                                    <span>Active Recall</span>
+                                    <small>Testing yourself instead of rereading</small>
+                                </div>
+                            </button>
+                            <button class="technique-btn" data-technique="custom">
+                                <i data-lucide="settings"></i>
+                                <div>
+                                    <span>Custom Timer</span>
+                                    <small>Set your own session and break times</small>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div id="custom-timer-settings" class="custom-timer-settings hidden">
+                            <h3>Custom Timer Settings</h3>
+                            <div class="input-group">
+                                <label for="study-time">Study Time (minutes)</label>
+                                <input type="number" id="study-time" min="1" max="120" value="45">
+                            </div>
+                            <div class="input-group">
+                                <label for="break-time">Break Time (minutes)</label>
+                                <input type="number" id="break-time" min="1" max="60" value="15">
+                            </div>
+                        </div>
+
+                        <div class="streak-container">
+                            <h3>Study Streak</h3>
+                            <div class="streak-display">
+                                <div class="streak-count">
+                                    <span id="streak-count">0</span>
+                                    <small>days</small>
+                                </div>
+                                <div class="streak-calendar" id="streak-calendar">
+                                    <!-- Calendar will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="keyboard-shortcuts">
+                            <h3>Keyboard Shortcuts</h3>
+                            <div class="shortcut-list">
+                                <div class="shortcut-item">
+                                    <kbd>Space</kbd>
+                                    <span>Start/Pause Timer</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>R</kbd>
+                                    <span>Reset Timer</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>F</kbd>
+                                    <span>Toggle Focus Mode</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>D</kbd>
+                                    <span>Toggle Dark Mode</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timer-display">
+                        <div class="timer-header">
+                            <h2 id="technique-name">Pomodoro</h2>
+                            <p id="timer-state">Study Session</p>
+                        </div>
+
+                        <div class="pomodoro-counter" id="pomodoro-counter">
+                            <div class="pomodoro-cycle active"></div>
+                            <div class="pomodoro-cycle"></div>
+                            <div class="pomodoro-cycle"></div>
+                            <div class="pomodoro-cycle"></div>
+                        </div>
+
+                        <div class="timer-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="timer-circle-bg" cx="50" cy="50" r="45"></circle>
+                                <circle id="timer-progress" class="timer-circle-progress" cx="50" cy="50" r="45"></circle>
+                            </svg>
+                            <div class="timer-time" id="timer-time">25:00</div>
+                        </div>
+
+                        <div class="timer-controls">
+                            <button id="timer-toggle" class="control-button primary" title="Start/Pause (Space)">
+                                <i data-lucide="play"></i>
+                            </button>
+                            <button id="timer-reset" class="control-button" title="Reset (R)">
+                                <i data-lucide="rotate-ccw"></i>
+                            </button>
+                            <button id="sound-toggle" class="control-button" title="Toggle Sound">
+                                <i data-lucide="volume-2"></i>
+                            </button>
+                        </div>
+
+                        <div class="session-info">
+                            <div class="input-group">
+                                <label for="current-topic">Current Topic</label>
+                                <input type="text" id="current-topic" placeholder="What are you studying?">
+                            </div>
+                            <div class="input-group">
+                                <label for="session-notes">Session Notes</label>
+                                <textarea id="session-notes" placeholder="Add notes about your study session..." rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="technique-tips" id="technique-tips">
+                            <h3>Technique Tips</h3>
+                            <p>Focus intensely for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks Tab -->
+            <section id="tasks-tab" class="tab-content">
+                <div class="tasks-container">
+                    <div class="add-task-panel">
+                        <h2>Add New Task</h2>
+                        <form id="add-task-form">
+                            <div class="input-group">
+                                <label for="task-title">Task Title</label>
+                                <input type="text" id="task-title" placeholder="Enter task title" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="task-description">Description</label>
+                                <textarea id="task-description" placeholder="Enter task description" rows="3"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="task-priority">Priority</label>
+                                <select id="task-priority">
+                                    <option value="high">High</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="task-due-date">Due Date (Optional)</label>
+                                <input type="date" id="task-due-date">
+                            </div>
+                            <button type="submit" class="button primary full-width">
+                                <i data-lucide="plus"></i> Add Task
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="tasks-list-panel">
+                        <div class="tasks-header">
+                            <h2>Tasks</h2>
+                            <div class="task-filters">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="active">Active</button>
+                                <button class="filter-btn" data-filter="completed">Completed</button>
+                                <button class="filter-btn" data-filter="due-soon">Due Soon</button>
+                            </div>
+                        </div>
+                        <div id="tasks-list" class="tasks-list">
+                            <!-- Tasks will be added here dynamically -->
+                            <div class="empty-state">
+                                <p>No tasks found. Add a new task to get started!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notes Tab -->
+            <section id="notes-tab" class="tab-content">
+                <div class="notes-container">
+                    <div class="notes-sidebar">
+                        <div class="notes-header">
+                            <h2>Study Notes</h2>
+                            <button id="add-note-btn" class="button primary">
+                                <i data-lucide="plus"></i> New Note
+                            </button>
+                        </div>
+                        <div id="notes-list" class="notes-list">
+                            <!-- Notes will be added here dynamically -->
+                            <div class="empty-state">
+                                <p>No notes found. Create a new note to get started!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="note-editor">
+                        <div class="note-editor-header">
+                            <input type="text" id="note-title" placeholder="Note Title" class="note-title-input">
+                            <div class="note-editor-actions">
+                                <button id="save-note-btn" class="button primary" disabled>
+                                    <i data-lucide="save"></i> Save
+                                </button>
+                                <button id="delete-note-btn" class="button danger" disabled>
+                                    <i data-lucide="trash-2"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="note-editor-content">
+                            <textarea id="note-content" placeholder="Start typing your note here..." class="note-content-input"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Tab -->
+            <section id="analytics-tab" class="tab-content">
+                <h2>Productivity Analytics</h2>
+                
+                <div class="analytics-cards">
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i data-lucide="clock"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Total Study Time</h3>
+                            <p id="total-study-time" class="card-value">0h 0m</p>
+                            <small>Across all sessions</small>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i data-lucide="calendar"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Study Sessions</h3>
+                            <p id="total-sessions" class="card-value">0</p>
+                            <small>Total completed sessions</small>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Task Completion</h3>
+                            <p id="task-completion" class="card-value">0%</p>
+                            <small id="task-completion-detail">0 of 0 tasks completed</small>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i data-lucide="flame"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Current Streak</h3>
+                            <p id="current-streak" class="card-value">0 days</p>
+                            <small>Consecutive study days</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Daily Study Time (Last 7 Days)</h3>
+                        <div id="daily-chart" class="daily-chart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Study Technique Breakdown</h3>
+                        <div id="technique-chart" class="technique-chart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Weekly Study Hours</h3>
+                        <div id="weekly-chart" class="weekly-chart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Productivity Score</h3>
+                        <div id="productivity-chart" class="productivity-chart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recent-sessions">
+                    <h3>Recent Study Sessions</h3>
+                    <div id="recent-sessions-list" class="recent-sessions-list">
+                        <!-- Recent sessions will be added here -->
+                        <div class="empty-state">
+                            <p>No study sessions recorded yet</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Tab -->
+            <section id="settings-tab" class="tab-content">
+                <h2>Settings</h2>
+                
+                <div class="settings-grid">
+                    <div class="settings-panel">
+                        <div class="settings-header">
+                            <i data-lucide="palette"></i>
+                            <h3>Color Themes</h3>
+                        </div>
+                        
+                        <div class="theme-options">
+                            <button class="theme-option active" data-theme="default">
+                                <div class="color-preview" style="background-color: #0284c7;"></div>
+                                <span>Default</span>
+                                <i data-lucide="check" class="theme-check"></i>
+                            </button>
+                            
+                            <button class="theme-option" data-theme="purple">
+                                <div class="color-preview" style="background-color: #8b5cf6;"></div>
+                                <span>Purple</span>
+                                <i data-lucide="check" class="theme-check"></i>
+                            </button>
+                            
+                            <button class="theme-option" data-theme="green">
+                                <div class="color-preview" style="background-color: #10b981;"></div>
+                                <span>Green</span>
+                                <i data-lucide="check" class="theme-check"></i>
+                            </button>
+                            
+                            <button class="theme-option" data-theme="amber">
+                                <div class="color-preview" style="background-color: #f59e0b;"></div>
+                                <span>Amber</span>
+                                <i data-lucide="check" class="theme-check"></i>
+                            </button>
+                            
+                            <button class="theme-option" data-theme="rose">
+                                <div class="color-preview" style="background-color: #f43f5e;"></div>
+                                <span>Rose</span>
+                                <i data-lucide="check" class="theme-check"></i>
+                            </button>
+                            
+                            <button class="theme-option" data-theme="custom">
+                                <div id="custom-color-preview" class="color-preview" style="background-color: #0284c7;"></div>
+                                <span>Custom</span>
+                                <i data-lucide="check" class="theme-check"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="custom-color-picker" class="custom-color-picker hidden">
+                            <label>Custom Primary Color</label>
+                            <div class="color-picker-inputs">
+                                <input type="color" id="color-picker" value="#0284c7">
+                                <input type="text" id="color-hex" value="#0284c7">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-panel">
+                        <div class="settings-header">
+                            <i data-lucide="moon"></i>
+                            <h3>Display Mode</h3>
+                        </div>
+                        
+                        <div class="mode-options">
+                            <button class="mode-option active" data-mode="light">
+                                <i data-lucide="sun"></i>
+                                <span>Light Mode</span>
+                                <i data-lucide="check" class="mode-check"></i>
+                            </button>
+                            
+                            <button class="mode-option" data-mode="dark">
+                                <i data-lucide="moon"></i>
+                                <span>Dark Mode</span>
+                                <i data-lucide="check" class="mode-check"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mode-info">
+                            <h4>About Dark Mode</h4>
+                            <p>Dark mode reduces eye strain in low-light conditions and can help conserve battery life on mobile devices.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <div class="settings-header">
+                            <i data-lucide="volume-2"></i>
+                            <h3>Sound Settings</h3>
+                        </div>
+                        
+                        <div class="sound-options">
+                            <div class="input-group">
+                                <label for="notification-sound-select">Timer Completion Sound</label>
+                                <select id="notification-sound-select">
+                                    <option value="bell">Bell</option>
+                                    <option value="chime">Chime</option>
+                                    <option value="digital">Digital</option>
+                                    <option value="gentle">Gentle</option>
+                                    <option value="none">None</option>
+                                </select>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="volume-control">Volume</label>
+                                <input type="range" id="volume-control" min="0" max="100" value="80">
+                            </div>
+                            
+                            <button id="test-sound-btn" class="button">
+                                <i data-lucide="play"></i> Test Sound
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <div class="settings-header">
+                            <i data-lucide="eye-off"></i>
+                            <h3>Focus Mode Settings</h3>
+                        </div>
+                        
+                        <div class="focus-mode-options">
+                            <div class="input-group">
+                                <label for="focus-mode-message">Focus Mode Message</label>
+                                <input type="text" id="focus-mode-message" value="Stay focused! You can do this.">
+                            </div>
+                            
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="block-notifications" checked>
+                                <label for="block-notifications">Block browser notifications during focus mode</label>
+                            </div>
+                            
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="auto-focus-mode">
+                                <label for="auto-focus-mode">Automatically enable focus mode when timer starts</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="theme-preview">
+                    <h3>Theme Preview</h3>
+                    
+                    <div class="preview-samples">
+                        <div class="preview-sample background">
+                            <h4>Background</h4>
+                            <div class="sample-text">
+                                <span>Text</span>
+                                <span class="muted">Muted</span>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-sample card">
+                            <h4>Card</h4>
+                            <div class="sample-text">
+                                <span>Text</span>
+                                <span class="muted">Muted</span>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-sample primary">
+                            <h4>Primary</h4>
+                            <div class="sample-text">Button Text</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-management">
+                    <h3>Data Management</h3>
+                    
+                    <div class="data-actions">
+                        <button id="export-data-btn" class="button">
+                            <i data-lucide="download"></i> Export Data
+                        </button>
+                        <button id="import-data-btn" class="button">
+                            <i data-lucide="upload"></i> Import Data
+                        </button>
+                        <button id="clear-data-btn" class="button danger">
+                            <i data-lucide="trash-2"></i> Clear All Data
+                        </button>
+                    </div>
+                    <input type="file" id="import-file-input" accept=".json" class="hidden">
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div id="focus-mode-overlay" class="focus-mode-overlay hidden">
+        <div class="focus-mode-content">
+            <h2>Focus Mode Enabled</h2>
+            <p id="focus-mode-overlay-message">Stay focused! You can do this.</p>
+            <button id="exit-focus-mode-btn" class="button">
+                <i data-lucide="eye"></i> Exit Focus Mode
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio for timer completion -->
+    <audio id="notification-sound-bell" src="bell.mp3"></audio>
+    <audio id="notification-sound-chime" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3"></audio>
+    <audio id="notification-sound-digital" src="https://assets.mixkit.co/sfx/preview/mixkit-digital-quick-tone-2865.mp3"></audio>
+    <audio id="notification-sound-gentle" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3"></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
